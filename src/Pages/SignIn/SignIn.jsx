@@ -16,9 +16,25 @@ const SignIn = () => {
     const password = form.password.value;
     login(email, password)
       .then((user) => {
-        form.reset();
-        setError("");
-        navigate(from, { replace: true });
+        fetch("http://localhost:5000/jwt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: user.displayName,
+            email: user.email,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.token) {
+              localStorage.setItem("jwt-token", data.token);
+              form.reset();
+              setError("");
+              navigate(from, { replace: true });
+            }
+          });
       })
       .catch((err) => {
         console.error(err);
